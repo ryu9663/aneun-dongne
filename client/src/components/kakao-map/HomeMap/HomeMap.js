@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { useRecoilValue, useRecoilState, useRecoilValueLoadable } from "recoil";
 // import { changePlaceList } from "../../redux/actions/actions";
 
 import notImageYet from "../../../img/not-image-yet.png";
 import { placelist, nowlocation, pickpoint } from "../../../recoil/recoil";
+import { getPlace } from "../../../recoil/async-selector";
 import "../kakao-map.css";
 import { cat1_name } from "../../../location-data";
 import HomeRightbar from "../../Home-Rightbar/Home-Rightbar-index";
-import HomeRightBtn from "../../Home-RightBtn/HomeRightBtn-index";
+
 import { Styled } from "./style.js";
+import Loading from "../../Loading";
 
 const HomeMap = ({ defaultPosition }) => {
+  const placeAddress = useRecoilValueLoadable(getPlace); //비동기 state
+
   const kakao = window.kakao;
 
   const [placeList, setPlaceList] = useRecoilState(placelist);
@@ -76,68 +80,75 @@ const HomeMap = ({ defaultPosition }) => {
     // e.target.value=''
   };
 
-  useEffect(() => {
-    // * 지도의 한 점 클릭시 그 클릭한 점의 좌표 반경 10km의 관광지들의 좌표 전송
+  //?
+  // useEffect(() => {
+  //   // * 지도의 한 점 클릭시 그 클릭한 점의 좌표 반경 10km의 관광지들의 좌표 전송
 
-    // !이건 내 좌표 반경 10km에 있는 관광지 좌표따오는거
+  //   // !이건 내 좌표 반경 10km에 있는 관광지 좌표따오는거
 
-    //!파라미터
-    //! areaCode : 서울1,인천2,대전3,대구4,광주5,부산6,울산7,세종8,경기31,강원32,충북33,충남34,경북35,경남36,전북37,전남38,제주40
-    //! sigunguCode : 제천:7
-    //! cat1(대분류):
-    //! cat2(중분류):
-    //! cat3(소분류)
-    //! areaBased :
-    // if(count===0){
+  //   //!파라미터
+  //   //! areaCode : 서울1,인천2,대전3,대구4,광주5,부산6,울산7,세종8,경기31,강원32,충북33,충남34,경북35,경남36,전북37,전남38,제주40
+  //   //! sigunguCode : 제천:7
+  //   //! cat1(대분류):
+  //   //! cat2(중분류):
+  //   //! cat3(소분류)
+  //   //! areaBased :
+  //   // if(count===0){
 
-    setCount(count + 1);
-    axios
-      .get(
-        `http://api.visitkorea.or.kr/openapi/service/rest/KorService/locationBasedList?ServiceKey=${process.env.REACT_APP_TOUR_API_KEY}`,
-        {
-          params: {
-            MobileOS: "ETC",
-            MobileApp: "TourAPI3.0_Guide",
-            //! 관광지 개수
-            numOfRows: 50,
-            // areaCode:33,
-            // sigunguCode:7,
-            //! contentTypeId : 12:관광지,14:문화시설,15:행사,25:여행코스,28:레포츠,32:숙박,38:쇼핑,39:식당,
-            contentTypeId: 12,
-            // * 대분류 : 인문
-            // cat1:'A02',
-            //* 중분류 : 역사지구
-            // cat2:'A0201',
-            //*좌표,반경
-            mapX: pickPoint[1],
-            mapY: pickPoint[0],
-            //! 반경 몇m??
-            radius: 10000,
-            //*
-            arrange: "A",
-            listYN: "Y",
-          },
-        },
-        { "content-type": "application/json" }
-      )
-      .then((res) => {
-        // console.log(res.data);
-        // console.log(res.data.response.body.items.item);
-        let list = res.data.response.body.items.item;
-        //! list : [[관광지각각의 y좌표,x좌표,제목,썸네일,주소,컨텐트id],..]
-        list = list.map((el) => {
-          return [Number(el.mapy), Number(el.mapx), el.title, el.firstimage, el.addr1, el.contentid];
-        });
-        //   dispatch(changePlaceList(list))
-        setPlaceList(list); //-> 이걸 PlaceList.js에서 사용한다.
-      })
-      .catch((err) => console.log(err));
-    // }
-  }, [pickPoint]); //! pickPoint가 바뀔때마다, 즉 지도를 클릭할때마다 실행.
+  //   setCount(count + 1);
+  //   axios
+  //     .get(
+  //       `http://api.visitkorea.or.kr/openapi/service/rest/KorService/locationBasedList?ServiceKey=${process.env.REACT_APP_TOUR_API_KEY}`,
+  //       {
+  //         params: {
+  //           MobileOS: "ETC",
+  //           MobileApp: "TourAPI3.0_Guide",
+  //           //! 관광지 개수
+  //           numOfRows: 50,
+  //           // areaCode:33,
+  //           // sigunguCode:7,
+  //           //! contentTypeId : 12:관광지,14:문화시설,15:행사,25:여행코스,28:레포츠,32:숙박,38:쇼핑,39:식당,
+  //           contentTypeId: 12,
+  //           // * 대분류 : 인문
+  //           // cat1:'A02',
+  //           //* 중분류 : 역사지구
+  //           // cat2:'A0201',
+  //           //*좌표,반경
+  //           mapX: pickPoint[1],
+  //           mapY: pickPoint[0],
+  //           //! 반경 몇m??
+  //           radius: 10000,
+  //           //*
+  //           arrange: "A",
+  //           listYN: "Y",
+  //         },
+  //       },
+  //       { "content-type": "application/json" }
+  //     )
+  //     .then((res) => {
+  //       // console.log(res.data);
+  //       // console.log(res.data.response.body.items.item);
+  //       let list = res.data.response.body.items.item;
+  //       //! list : [[관광지각각의 y좌표,x좌표,제목,썸네일,주소,컨텐트id],..]
+  //       list = list.map((el) => {
+  //         return [Number(el.mapy), Number(el.mapx), el.title, el.firstimage, el.addr1, el.contentid];
+  //       });
+  //       //   dispatch(changePlaceList(list))
+  //       setPlaceList(list); //-> 이걸 PlaceList.js에서 사용한다.
+  //     })
+  //     .catch((err) => console.log(err));
+  //   // }
+  // }, [pickPoint]); //! pickPoint가 바뀔때마다, 즉 지도를 클릭할때마다 실행.
   // ?
 
   // !
+
+  // console.log(placeAddress);
+
+  setPlaceList(placeAddress.contents);
+
   useEffect(() => {
+    if (placeList.length === 0 || document.getElementById("map") === null) return;
     // * 위의 useEffect에서 받아온 좌표들을 지도에 노란색 마커로 표시
     // console.log("effect");
 
@@ -287,6 +298,29 @@ const HomeMap = ({ defaultPosition }) => {
   //   setLevel(8);
   // };
   /* margin-top:${(props)=>props.first?'10px':'50px'} */
+
+  console.log(placeAddress);
+  //! document.querySelector('#map')보다 placeAddress가 먼저렌더링되어서 넣을곳이 없다.
+  //! placeAddress의 초기값인 빈문자열이 먼저 렌더링된다.
+  if (placeAddress.state === "loading") {
+    console.log("로딩");
+    return null;
+    <Styled.Div>
+      <HomeRightbar
+        // area={area}
+        // sigg={sigg}
+        // areaIdx={areaIdx}
+        // changeArea={changeArea}
+        // changeSigg={changeSigg}
+        setLevel={setLevel}
+        handleSearch={handleSearch}
+        searchPlace={searchPlace}
+        place={place}
+        pickPoint={pickPoint}
+        setPickPoint={setPickPoint}
+      />
+    </Styled.Div>;
+  }
   return (
     <Styled.Div>
       <HomeRightbar
@@ -307,10 +341,9 @@ const HomeMap = ({ defaultPosition }) => {
     </Styled.Div>
   );
 };
-
 export default HomeMap;
 
 //! 남은거 :
-//! 시군구,도 option에 있는 글자를 지도에 파란마커가 있는 주소와 일치시키기
+
 //! 무한스크롤
 //! css,반응형

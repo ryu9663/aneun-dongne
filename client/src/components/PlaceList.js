@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useSetRecoilState, useRecoilValue } from "recoil";
+import { useSetRecoilState, useRecoilValue, useRecoilValueLoadable } from "recoil";
 import styled from "styled-components";
 import { MemoCards } from "./PlaceCards";
 import PlaceCards from "./PlaceCards";
 
 import { placelist, placeaddress, placelocation, placeimg, placetitle } from "../recoil/recoil";
+import { getPlace } from "../recoil/async-selector";
 import { Link } from "react-router-dom";
+import Loading from "./Loading";
 
 const PlaceLists = styled.div`
   /* height: 100vh; */
@@ -60,6 +62,8 @@ const Div = styled.div`
 // 아 근데 왜 안돼 우선 제껴,
 
 function PlaceList() {
+  const placeAddress = useRecoilValueLoadable(getPlace); //비동기 state
+
   const placeList = useRecoilValue(placelist);
   const setPlaceLocation = useSetRecoilState(placelocation);
   const setPlaceAddress = useSetRecoilState(placeaddress);
@@ -105,9 +109,13 @@ function PlaceList() {
     setTitle(title);
     setPlaceAddress(address);
   }
+  if (placeAddress.state === "loading") {
+    return null;
+  }
+  console.log(placeAddress);
   return (
     <PlaceLists>
-      {placeList.map((place, idx) => {
+      {placeAddress.contents.map((place, idx) => {
         return (
           <Div key={idx}>
             {/* addr1이 undefined 되는 장소가 있어서 addr1는 임시방편으로 3항연산자 처리함 나중에 살펴보자. */}

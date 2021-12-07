@@ -45,24 +45,24 @@ function Home() {
         // console.log(isLoading);
 
         setDefaultPosition({ lat, lon });
-        console.log(isLoading);
-        axios
-          .get(`https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${lon}&y=${lat}&input_coord=WGS84`, {
-            headers: { Authorization: `KakaoAK ${process.env.REACT_APP_REST_API}` },
-          })
-          .then((res) => {
-            return res.data.documents[0].address;
-          })
-          .then((address) => {
-            console.log(address);
-            setAdd({
-              area: address.region_1depth_name,
-              sigg: address.region_2depth_name,
-              address: address.address_name,
-            });
-          })
-          //   .then(res=>console.log(meetingPlace))
-          .catch((err) => console.log(err)); //237줄에 console.log(meetingPlace)있음.
+        console.log(defaultPosition);
+        // axios
+        //   .get(`https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${lon}&y=${lat}&input_coord=WGS84`, {
+        //     headers: { Authorization: `KakaoAK ${process.env.REACT_APP_REST_API}` },
+        //   })
+        //   .then((res) => {
+        //     return res.data.documents[0].address;
+        //   })
+        //   .then((address) => {
+        //     console.log(address);
+        //     setAdd({
+        //       area: address.region_1depth_name,
+        //       sigg: address.region_2depth_name,
+        //       address: address.address_name,
+        //     });
+        //   })
+        //   .then(res=>console.log(meetingPlace))
+        // .catch((err) => console.log(err)); //237줄에 console.log(meetingPlace)있음.
         // console.log(isLoading);
         setIsLoading(false);
       },
@@ -76,7 +76,7 @@ function Home() {
     // console.log(add);
 
     // // console.log(defaultPosition);
-  }, [add]);
+  }, []);
 
   return (
     <>

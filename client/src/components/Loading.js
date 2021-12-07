@@ -38,12 +38,12 @@ const Div = styled.div`
     }
   }
 `;
-function Loading() {
+function Loading({ message }) {
   return (
     <Div>
       <div className="loadingBox">
         <div className="circle"></div>
-        <h1>로딩중입니다. </h1>
+        <h1>{message || "로딩중입니다."}</h1>
       </div>
     </Div>
   );
