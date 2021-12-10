@@ -46,7 +46,6 @@ export const Styled = {
     width: 50%;
     height: 100%;
     background-color: white;
-
     /* background-color: red; */
     border: none;
     /* border: 1px pink solid; */

@@ -1,11 +1,10 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
-//
 
-//! 유저 주소
+//! 유저 주소 - Home.js에서 사용
 export const usersaddress = atom({
-  key: "nowlocation",
-  default: { add: "", sigg: "", addr: "" },
+  key: "usersaddress",
+  default: { area: "", sigg: "", addr: "" },
 });
 
 export const placelist = atom({
@@ -35,6 +34,24 @@ export const placeimg = atom({
   default: "",
 });
 
+export const sendPlaceinfo = selector({
+  key: "sendPlaceInfo",
+  get: ({ get }) => {
+    return {
+      img: get(placeimg),
+      location: get(placelocation),
+      title: get(placetitle),
+      address: get(placeaddress),
+    };
+  },
+  set: ({ set }, img, location, title, address) => {
+    set(placeimg, img);
+    set(placetitle, title);
+    set(placelocation, location);
+    set(placeaddress, address);
+  },
+});
+
 //! 로딩state
 export const loading = atom({
   key: "loading",
@@ -45,6 +62,14 @@ export const loading = atom({
 export const isSavepositionOpen = atom({
   key: "isSavepositionOpen",
   default: false,
+});
+
+export const locations = atom({
+  key: "location",
+  default: {
+    lat: 36,
+    lon: 127,
+  },
 });
 
 //! 로긴
@@ -59,11 +84,24 @@ export const loginModal = atom({
 });
 export const userInfo = atom({
   key: "userInfo",
-  default: null,
+  default: {
+    email: "",
+    createdAt: "",
+    nickname: "",
+    updatedAt: "",
+    user_area: "",
+    user_sigg: "",
+    user_image_path: "",
+  },
 });
-
+//!pickpoint바뀔때마다 바뀌는 값
 export const defaultposition = atom({
   key: "defaultPosition",
+  default: { lat: 0, lon: 0 },
+});
+//! 현재위치 버튼때 필요한 값, 새로고침될때빼고는 안바뀐다.
+export const nowlocation = atom({
+  key: "nowlocation",
   default: { lat: 0, lon: 0 },
 });
 
@@ -72,11 +110,11 @@ export const defaultcomments = atom({
   key: "defaultcomments",
   default: [
     {
-      //uuid:0,
-      img: "/people1.png",
+      id: 0,
+      user_image_path: "/people1.png",
       nickname: "류준열",
-      text: "안녕하세요",
-      tags: [
+      comment_content: "안녕하세요",
+      comment_tags: [
         "안녕하세요",
         "감사해요",
         "잘있어요",
@@ -85,7 +123,7 @@ export const defaultcomments = atom({
         "아침해가뜨면",
         "매일같은사람들과",
       ],
-      date: "2021-12-03", //형식 모르겠음 db보고 결정
+      comment_createdAt: "2021-12-03", //형식 모르겠음 db보고 결정
       editable: false,
     },
     {
@@ -99,23 +137,18 @@ export const defaultcomments = atom({
     },
   ],
 });
-// ! 댓글쓰면 스크롤 내리는 신호
-export const updatecomment = atom({
-  key: "updatecomment",
-  default: false,
-});
 
 //! 댓글 수정신호
-export const editcommentMode = atom({
-  key: "editcommentMode",
+export const deleteCommentmode = atom({
+  key: "deleteCommentMode",
   default: false,
 });
 
-// ! 위치기반 API
+// ! 위치기반 API -> 지도위 나타나는 좌표 바꾸는거. 지도 클릭한효과랑 같음
 export const pickpoint = selector({
   key: "pickpoint",
   get: ({ get }) => {
-    console.log(get(defaultposition).lat, get(defaultposition).lon);
+    // console.log(get(defaultposition).lat, get(defaultposition).lon);
     return [get(defaultposition).lat, get(defaultposition).lon];
   },
   set: ({ set }, arr) => {
@@ -127,3 +160,45 @@ export const token = atom({
   key: "token",
   default: "",
 });
+<<<<<<< HEAD
+=======
+
+export const infoEdit = atom({
+  key: "infoEdit",
+  default: "",
+});
+// ! 현재위치
+export const isClickedNowLocation = atom({
+  key: "isClickedNowLocation",
+  default: false,
+});
+
+// ! 위치기반 API
+
+export const setLo = selector({
+  key: "setLo",
+  get: async ({ get }) => {
+    return (
+      axios
+        .get(
+          `https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${get(pickpoint)[1]}&y=${
+            get(pickpoint)[0]
+          }&input_coord=WGS84`,
+          { headers: { Authorization: `KakaoAK ${process.env.REACT_APP_REST_API}` } }
+        )
+        .then((res) => res.data.documents[0].address)
+        .then((address) => {
+          // console.log(address)
+          // console.log({
+          //   area: address.region_1depth_name,
+          //   sigg: address.region_2depth_name,
+          //   address: address.address_name,
+          // });
+          return { area: address.region_1depth_name, sigg: address.region_2depth_name, address: address.address_name };
+        })
+        //   .then(res=>console.log(meetingPlace))
+        .catch((err) => console.log(err))
+    ); //237줄에 console.log(meetingPlace)있음.
+  },
+});
+>>>>>>> feature

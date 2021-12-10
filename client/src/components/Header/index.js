@@ -7,9 +7,11 @@ import { Styled } from "./style";
 import { isSavepositionOpen, loginState, loginModal } from "../../recoil/recoil";
 import ModalSavePosition from "../ModalSavePosition/ModalSavePosition-index";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { StyledLink } from "../PlaceList";
 const Header = ({ handleResponseSuccess }) => {
-  const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
+  const history = useHistory();
+  // const [cookies, setCookie, removeCookie] = useCookies(["cookie-name"]);
   const [isLoginOpen, setIsLoginOpen] = useRecoilState(loginModal);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isSavePositionOpen, setIsSavePositionOpen] = useRecoilState(isSavepositionOpen);
@@ -25,6 +27,12 @@ const Header = ({ handleResponseSuccess }) => {
   const closeLoginModalHandler = (e) => {
     if (isLoginOpen) {
       setIsLoginOpen(false);
+    }
+  };
+
+  const closeLogoutModalHandler = (e) => {
+    if (isSignupOpen) {
+      setIsSignupOpen(false);
     }
   };
 
@@ -61,11 +69,12 @@ const Header = ({ handleResponseSuccess }) => {
   };
   const logoutHandler = () => {
     console.log("hi");
-    axios.post("http://localhost:80/signout", {}, { withCredentials: true }).then((res) => {
+    axios.post("https://localhost:80/signout", {}, { withCredentials: true }).then((res) => {
       //로긴상태 해제
       setIsLogin(false);
     });
-    console.log(isLogin);
+
+    history.push("/");
     // console.log(cookies);
   };
 
@@ -91,7 +100,11 @@ const Header = ({ handleResponseSuccess }) => {
           <>
             <Styled.ModalBackdrop onClick={closeSignupModalHandler}>
               <Styled.ModalView onClick={(e) => e.stopPropagation()}>
-                <ModalSignup handleResponseSuccess={handleResponseSuccess} ToLoginModal={ToLoginModal} />
+                <ModalSignup
+                  handleResponseSuccess={handleResponseSuccess}
+                  ToLoginModal={ToLoginModal}
+                  closeLogoutModalHandler={closeLogoutModalHandler}
+                />
               </Styled.ModalView>
             </Styled.ModalBackdrop>
           </>
@@ -134,9 +147,11 @@ const Header = ({ handleResponseSuccess }) => {
                 <div className="mainpage-button" onClick={logoutHandler}>
                   Log Out
                 </div>
-                <div className="mainpage-button" onClick={openSignupModalHandler}>
-                  My Page
-                </div>
+                {/* 나중에 밑줄뜨는거 처리해야함*/}
+                <StyledLink to="/mypage">
+                  <div className="mainpage-button">My Page</div>
+                  {/* <div className="mainpage-button">My Page</div> */}
+                </StyledLink>
               </>
             )}
           </div>

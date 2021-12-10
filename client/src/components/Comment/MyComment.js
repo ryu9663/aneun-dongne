@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import MyHashTag from "../HashTag/MyHashTag";
+import EditableHashTag from "../HashTag/EditableHashTag";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { defaultcomments, updatecomment, loginState, loginModal } from "../../recoil/recoil";
+import axios from "axios";
 const CommentWrapper = styled.div`
   width: 100%;
 `;
 const Comment = styled.div`
   position: relative;
   display: flex;
-  border: 1px gray solid;
-  height: 200px;
+  /* border: 1px red solid; */
+  /* height: 200px; */
   border-radius: 20px;
   margin-top: 10px;
   margin-bottom: 40px;
@@ -29,7 +30,7 @@ const Comment = styled.div`
 `;
 const Profile = styled.div`
   position: relative;
-  /* background-color: red; */
+  background-color: red;
   width: 80px;
   height: 140px;
   margin: 40px;
@@ -43,7 +44,7 @@ const ProfileImg = styled.img`
 `;
 
 const NickName = styled.span`
-  /* background-color: yellowgreen; */
+  background-color: yellowgreen;
   position: absolute;
   bottom: 5px;
   text-align: center;
@@ -54,7 +55,7 @@ const ContentBox = styled.form`
   margin-top: 30px;
   position: relative;
   width: 480px;
-  height: 140px;
+  /* height: 140px; */
   > button {
     position: absolute;
     right: -10px;
@@ -83,25 +84,32 @@ const ContentBox = styled.form`
 `;
 
 const Content = styled.textarea`
+  display: flex;
+  flex-wrap: wrap;
   position: absolute;
-  top: 10px;
+  top: 0;
   left: 10px;
   width: 370px;
-  height: 60px;
+  height: 70px;
   padding-left: 10px;
   padding-right: 10px;
 `;
 
 const HashTagWrapper = styled.div`
   /* display: flex; */
-  position: absolute;
+  /* position: absolute; */
   /* background-color: pink; */
   width: 370px;
-  height: 50px;
-  bottom: 10px;
+  /* height: 60px; */
+  top: 75px;
+  margin-top: 75px;
   left: 10px;
+  /* padding-left: 10px; */
+  padding-right: 10px;
+
   white-space: nowrap;
   border: none;
+  border: 1px gray solid;
 `;
 const Date = styled.div`
   position: absolute;
@@ -109,30 +117,21 @@ const Date = styled.div`
   right: 10px;
 `;
 
-function MyComment() {
+function MyComment({ userinfo, contentId, defaultComment, setDefaultComment }) {
   const [pending, setPending] = useState(false);
   const [something, setSomething] = useState("");
   const [text, setText] = useState("");
   const [count, setCount] = useState(0);
-  const [updateComment, setUpdateComment] = useRecoilState(updatecomment);
   const [tags, setTags] = useState([]);
-  const [defaultComment, setDefaultComment] = useRecoilState(defaultcomments);
+  // const [defaultComment, setDefaultComment] = useRecoilState(defaultcomments);
   //로긴모달창,로긴상태
   const isLogin = useRecoilValue(loginState);
   const setIsLoginOpen = useSetRecoilState(loginModal);
-  //이게 응답이라고 생각
-  const myComment = {
-    img: "/people3.png", //유저 프로필
-    nickname: "김코딩", //유저닉네임
-    text: "",
-    tags: [],
-    date: "DB에서 날라오겠지", //현재날짜
-    editable: true,
-  };
+  const date = new window.Date();
   const writeSomething = (e) => {
     setSomething(e.target.value);
   };
-  let body = { ...myComment, ...{ text: something, tags } };
+
   const registerMyComment = (e) => {
     e.preventDefault();
     if (!isLogin) {
@@ -143,8 +142,34 @@ function MyComment() {
       alert("내용을 입력해주세요");
       return;
     }
+    //------------
+    //이게 응답이라고 생각
+    // const myComment = {
+    //   img: "/people3.png", //유저 프로필
+    //   nickname: "김코딩", //유저닉네임
+    //   text: "",
+    //   tags: [],
+    //   date: "DB에서 날라오겠지", //현재날짜
+    //   editable: true,
+    // };
+    let body = {
+      commentContent: something,
+      tagsArr: tags,
+    };
+    axios.post(`https://localhost:80/comment/${contentId}`, body, { withCredentials: true }).then((res) => {
+      console.log("가공전", res.data.data);
+      let arr = res.data.data.map((el) => {
+        // console.log(el.comments.comment_tags.split(","));
+        console.log([{ ...el.user, ...{ ...el.comments, comment_tags: el.comments.comment_tags.split(",") } }]);
+        return [{ ...el.user, ...{ ...el.comments, comment_tags: el.comments.comment_tags.split(",") } }];
+      });
+      setDefaultComment(arr);
+    });
+
+    //------------
     // setDefaultComment(defaultComment.concat(body)); 왜 일케하면 memo되고 밑에꺼로하면 안됨
-    setDefaultComment([body].concat(defaultComment));
+
+    // setDefaultComment([body].concat(defaultComment)); -> DB가 대신함
     // setPending(true);
     setTags([]);
     setSomething("");
@@ -154,8 +179,8 @@ function MyComment() {
     <CommentWrapper>
       <Comment>
         <Profile>
-          <ProfileImg src={myComment.img}></ProfileImg>
-          <NickName>{myComment.nickname}</NickName>
+          <ProfileImg src={userinfo.user_image_path}></ProfileImg>
+          <NickName>{userinfo.nickname}</NickName>
         </Profile>
         <ContentBox>
           <Content
@@ -172,11 +197,10 @@ function MyComment() {
           ></Content>
 
           <HashTagWrapper>
-            <MyHashTag tags={tags} setTags={setTags} />
+            <EditableHashTag tags={tags} setTags={setTags} />
           </HashTagWrapper>
           <button onClick={registerMyComment}>작성하기</button>
         </ContentBox>
-        <Date>작성날짜 : {myComment.date}</Date>
       </Comment>
     </CommentWrapper>
   );

@@ -5,7 +5,7 @@ import HomeMap from "../../components/kakao-map/HomeMap/HomeMap";
 import PlaceList from "../../components/PlaceList";
 import HashTagList from "../../components/HashTag/HashTagList";
 import { useRecoilState } from "recoil";
-import { loading, defaultposition, usersaddress } from "../../recoil/recoil";
+import { loading, defaultposition, usersaddress, nowlocation } from "../../recoil/recoil";
 import Loading from "../../components/Loading";
 
 const FixedComp = styled.div`
@@ -13,6 +13,7 @@ const FixedComp = styled.div`
 `;
 const DivRow = styled.div`
   display: flex;
+
   justify-content: space-evenly;
 `;
 const DivColumn = styled.div`
@@ -31,6 +32,7 @@ const DivColumnSecond = styled.div`
 `;
 
 function Home() {
+  const [nowLocation, setNowLocation] = useRecoilState(nowlocation);
   const [isLoading, setIsLoading] = useRecoilState(loading);
   const [add, setAdd] = useRecoilState(usersaddress);
   const [pending, setPending] = useState(false);
@@ -43,8 +45,9 @@ function Home() {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         // console.log(isLoading);
-
+        setNowLocation({ lat, lon });
         setDefaultPosition({ lat, lon });
+<<<<<<< HEAD
         console.log(defaultPosition);
         // axios
         //   .get(`https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${lon}&y=${lat}&input_coord=WGS84`, {
@@ -63,6 +66,26 @@ function Home() {
         //   })
         //   .then(res=>console.log(meetingPlace))
         // .catch((err) => console.log(err)); //237줄에 console.log(meetingPlace)있음.
+=======
+        // console.log(isLoading);
+        axios
+          .get(`https://dapi.kakao.com/v2/local/geo/coord2address.json?x=${lon}&y=${lat}&input_coord=WGS84`, {
+            headers: { Authorization: `KakaoAK ${process.env.REACT_APP_REST_API}` },
+          })
+          .then((res) => {
+            return res.data.documents[0].address;
+          })
+          .then((address) => {
+            // console.log(address);
+            setAdd({
+              area: address.region_1depth_name,
+              sigg: address.region_2depth_name,
+              address: address.address_name,
+            });
+          })
+          //   .then(res=>console.log(meetingPlace))
+          .catch((err) => console.log(err)); //237줄에 console.log(meetingPlace)있음.
+>>>>>>> feature
         // console.log(isLoading);
         setIsLoading(false);
       },
@@ -86,7 +109,7 @@ function Home() {
         ) : (
           <DivRow>
             <DivColumn>
-              <HomeMap defaultPosition={defaultPosition} />
+              <HomeMap />
             </DivColumn>
             <DivColumnSecond>
               {/* <HashTagList /> */}

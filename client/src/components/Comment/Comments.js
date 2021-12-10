@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 import styled, { keyframes } from "styled-components";
-import OthersHashTag from "../HashTag/OthersHashTag";
+
 import { useRecoilState } from "recoil";
-import { defaultcomments } from "../../recoil/recoil";
+import { defaultcomments, deleteCommentmode } from "../../recoil/recoil";
 import MyComment from "./MyComment";
-import MyHashTag from "../HashTag/MyHashTag";
+import EditableHashTag from "../HashTag/EditableHashTag";
+import axios from "axios";
+import OnlyReadHashTag from "../HashTag/OnlyReadHashTag";
 
 const Comment = styled.div`
   position: relative;
   display: flex;
-  border: 1px red solid;
-  height: 200px;
+  /* border: 1px red solid; */
+  /* height: 200px; */
   border-radius: 20px;
   margin-top: 10px;
   margin-bottom: 40px;
@@ -29,7 +31,8 @@ const Comment = styled.div`
 `;
 const Profile = styled.div`
   position: relative;
-  /* background-color: red; */
+  background-color: red;
+  display: flex;
   width: 80px;
   height: 140px;
   margin: 40px;
@@ -39,11 +42,11 @@ const ProfileImg = styled.img`
   width: 80px;
   height: 80px;
   position: absolute;
-  /* background-color: white; */
+  background-color: white;
 `;
 
 const NickName = styled.span`
-  /* background-color: yellowgreen; */
+  background-color: yellowgreen;
   position: absolute;
   bottom: 5px;
   text-align: center;
@@ -51,53 +54,88 @@ const NickName = styled.span`
 `;
 
 const ContentBox = styled.div`
-  /* background-color: yellow; */
-
-  margin-top: 20px;
+  background-color: yellow;
+  margin-top: 30px;
   position: relative;
-  width: 400px;
-  height: 140px;
+  width: 480px;
+  /* height: 140px; */
+  > button {
+    position: absolute;
+    right: -10px;
+    top: 20px;
+    width: 80px;
+    border: none;
+    height: 40px;
+    background-color: rgb(192, 251, 255);
+    background-image: linear-gradient(
+      to right bottom,
+      rgba(255, 255, 255, 0.9) 0,
+      rgba(0, 0, 0, 0) 60%,
+      rgba(0, 0, 0, 0) 100%
+    );
+    transition: all 0.5s ease;
+    border-radius: 20px;
+  }
+
+  button:hover {
+    transform: scale(1.1);
+  }
+
+  button:active {
+    transform: scale(1.1);
+  }
 `;
 
 const Content = styled.div`
-  position: absolute;
-  top: 0px;
+  display: flex;
+  flex-wrap: wrap;
+  line-height: 1em;
+  word-break: break-all;
+  /* position: absolute; */
+  top: 0;
   left: 10px;
   width: 370px;
-  height: 60px;
+  height: 70px;
   padding-left: 10px;
   padding-right: 10px;
-  /* border: 1px gray solid; */
-  /* background-color: whitesmoke; */
+
+  background-color: skyblue;
 `;
 
 const ContentInput = styled.div`
-  position: absolute;
-  top: 0px;
-  left: 10px;
-  width: 460px;
-  height: 80px;
-  padding-left: 10px;
-  padding-right: 10px;
+  /* display: flex; */
+  /* flex-wrap: wrap; */
 
+  > #comment-read {
+    word-wrap: break-word;
+    background-color: green;
+    > span {
+      /* background-color: blueviolet; */
+    }
+  }
+  > #comment-change {
+    display: flex;
+    flex-wrap: wrap;
+
+    width: 370px;
+    height: 70px;
+  }
   > input,
   div {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+    background-color: whitesmoke;
+
     width: 370px;
-    height: 60px;
+
     padding-left: 10px;
     padding-right: 10px;
   }
 
   .change-comment,
   .complete-change {
-    position: absolute;
-    /* top: -20px; */
-    right: -20px;
+    z-index: 999;
+
     border: none;
-    background-color: rgb(192, 251, 255);
+
     background-image: linear-gradient(
       to right bottom,
       rgba(255, 255, 255, 0.9) 0,
@@ -123,11 +161,8 @@ const ContentInput = styled.div`
 
   .delete-comment,
   .get-back {
-    position: absolute;
-    top: 60px;
-    right: -20px;
     border: none;
-    background-color: rgb(192, 251, 255);
+
     background-image: linear-gradient(
       to right bottom,
       rgba(255, 255, 255, 0.9) 0,
@@ -153,20 +188,18 @@ const ContentInput = styled.div`
 `;
 
 const HashTagWrapper = styled.div`
-  /* display: flex; */
-  position: absolute;
-  /* background-color: pink; */
-
+  /* margin-top: 100px; */
+  /* position: absolute; */
+  background-color: red;
   width: 370px;
-  height: 40px;
-  bottom: 0px;
+
+  /* bottom: 0; */
+  /* top: 75px; */
+  /* margin-top: 75px; */
   left: 10px;
+  padding-right: 10px;
   white-space: nowrap;
   border: none;
-  /* overflow-y: scroll; */
-
-  /* overflow: auto; */
-  /* white-space: nowrap; */
 `;
 const Date = styled.div`
   position: absolute;
@@ -174,7 +207,7 @@ const Date = styled.div`
   right: 10px;
 `;
 
-function Comments({ uuid, img, nickname, text, initialTags, date, commentId, editable }) {
+function Comments({ uuid, img, nickname, text, initialTags, date, editable, contentId }) {
   const [clickedBtn, setClickedBtn] = useState("");
 
   //editMode가 전역변수면 모든댓글창이 영향을받는다.
@@ -185,23 +218,24 @@ function Comments({ uuid, img, nickname, text, initialTags, date, commentId, edi
   const [tags, setTags] = useState(initialTags);
   const [defaultComment, setDefaultComment] = useRecoilState(defaultcomments);
   const [prevComment, setPrevComment] = useState(text);
-
+  const [deleteOrNot, setDeleteOrNot] = useRecoilState(deleteCommentmode);
+  // console.log(initialTags);
   useEffect(() => {
     //text,initialTags초기화
     setComment(text);
     setTags(initialTags);
   }, [text, initialTags]);
   useEffect(() => {
-    console.log("위", text);
+    // console.log("위", text);
     setPrevComment(text);
   }, []);
 
-  const username = "김코딩";
   //! 이것도 서버에서하래 유저권한 관련된건 다 서버에서 토큰이랑 비교후 결정
   // const editable = nickname === username; //
 
   function getCommentId(e) {
-    e.preventDefault(); //필요한가?
+    // e.preventDefault(); //필요한가?
+    //누른 버튼의 className으로 실행되는 함수가 결정된다.
     setClickedBtn(e.target.className);
   }
 
@@ -216,35 +250,62 @@ function Comments({ uuid, img, nickname, text, initialTags, date, commentId, edi
       changeComment();
     }
   }, [clickedBtn]);
+  // console.log(tags.map((el) => el.substr(0, el.length - 1)));
 
   // 댓글 삭제요청 보내는 함수
   function deleteComment() {
-    if (commentId === undefined) console.log("삭제하려는 댓글이 존재하지 않습니다."); //숫자라서 정확하기 명시해야함
+    axios
+      .delete(
+        `https://localhost:80/comment/${contentId}`,
 
-    console.log(clickedBtn, commentId);
-    //axios : 전체배열 다시 받아서 전체댓글recoil 바꾼다.
-
+        //! axios에선 params지만 express에선 req.query래요.
+        //! 전송되는 url은 https://localhost:80/126508/?commentId=18  이래요
+        { params: { commentId: uuid }, withCredentials: true }
+      )
+      .then((res) => {
+        console.log(res.data.data);
+        let arr = res.data.data.map((el) => {
+          console.log(el.comments.comment_tags.split(","));
+          console.log([{ ...el.user, ...{ ...el.comments, comment_tags: el.comments.comment_tags.split(",") } }]);
+          return [{ ...el.user, ...{ ...el.comments, comment_tags: el.comments.comment_tags.split(",") } }];
+        });
+        console.log(arr);
+        setDefaultComment(arr);
+        setDeleteOrNot(true);
+      });
     setClickedBtn("");
   }
   function changeComment() {
     setPrevComment(comment);
     setEditMode(true);
+    console.log(editMode);
   }
   function completeChange() {
-    if (commentId === undefined) console.log("수정하려는 댓글이 존재하지 않습니다.");
     console.log(tags, comment);
-    setDefaultComment([
-      ...defaultComment.slice(0, uuid),
-      { ...defaultComment[uuid], ...{ tags: tags, text: comment } },
-      ...defaultComment.slice(uuid + 1),
-    ]);
+    const body = {
+      commentId: uuid, //댓글아뒤
+      commentContent: comment, //댓글내용
+      tagsArr: tags, //해시태그
+    };
+    axios
+      .patch(`https://localhost:80/comment/${contentId}`, body, {
+        headers: { "content-type": "application/json" },
+        withCredentials: true,
+      })
+      .then((res) => {
+        let arr = res.data.data.map((el) => {
+          console.log(el.comments.comment_tags.split(","));
+          console.log([{ ...el.user, ...{ ...el.comments, comment_tags: el.comments.comment_tags.split(",") } }]);
+          return [{ ...el.user, ...{ ...el.comments, comment_tags: el.comments.comment_tags.split(",") } }];
+        });
+        console.log(arr);
+        setDefaultComment(arr);
+      });
 
     if (editMode) console.log("수정완료");
     else console.log("댓글수정 클릭");
 
     setEditMode(false);
-
-    // console.log(clickedBtn, commentId);
 
     setClickedBtn("");
   }
@@ -253,10 +314,13 @@ function Comments({ uuid, img, nickname, text, initialTags, date, commentId, edi
     setComment(e.target.value);
   };
   useEffect(() => {
-    console.log("아래", prevComment);
     setComment(prevComment);
     setEditMode(false);
+    setClickedBtn("");
   }, [changeOrNot]);
+  useEffect(() => {
+    console.log(editMode);
+  }, [editMode]);
   return (
     <>
       <Comment>
@@ -270,14 +334,15 @@ function Comments({ uuid, img, nickname, text, initialTags, date, commentId, edi
           ) : (
             <ContentInput>
               {!editMode ? (
-                <div id="commentRead" name="comment">
-                  {comment}
+                <div id="comment-read" name="comment">
+                  <span>{comment}</span>
                 </div>
               ) : (
-                <input
-                  id="commentChange"
+                <textarea
+                  id="comment-change"
                   type="text"
-                  value={comment} //defaultValue로 하면 버그생겨서 콘솔에러떠도 우선 value로 함.
+                  // value={comment}
+                  defaultValue={prevComment}
                   onChange={(e) => ChangeHandler(e)}
                   onKeyUp={(e) => {
                     if (e.key === "Enter") {
@@ -303,7 +368,7 @@ function Comments({ uuid, img, nickname, text, initialTags, date, commentId, edi
                 </button>
               )}
               {!editMode ? (
-                <button className="delete-comment" onClick={(e) => getCommentId(e)}>
+                <button type="submit" className="delete-comment" onClick={(e) => getCommentId(e)}>
                   댓글삭제
                 </button>
               ) : (
@@ -314,10 +379,21 @@ function Comments({ uuid, img, nickname, text, initialTags, date, commentId, edi
             </ContentInput>
           )}
           <HashTagWrapper>
-            {editMode ? <MyHashTag tags={tags} setTags={setTags} /> : <OthersHashTag initialTags={initialTags} />}
+            {/* 편집못함? -> 읽기만가능한해시태그 안에 props로 다른사람의 해시태그 전달
+            편집가능? -> 수정못함? : 읽기만가능한 해시태그안에 props로 나의 해시태그 전달
+            편집가능? -? 수정가능? : 수정가능한 해시태그  */}
+            {editable ? (
+              editMode ? (
+                <EditableHashTag tags={tags} setTags={setTags} uuid={uuid} />
+              ) : (
+                <OnlyReadHashTag initialTags={tags} uuid={uuid} /> //
+              )
+            ) : (
+              <OnlyReadHashTag initialTags={initialTags} uuid={uuid} />
+            )}
           </HashTagWrapper>
         </ContentBox>
-        <Date>작성날짜 : {date}</Date>
+        {/* <Date>작성날짜 : {date}</Date> */}
       </Comment>
     </>
   );
