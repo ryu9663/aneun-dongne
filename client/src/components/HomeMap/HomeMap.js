@@ -30,7 +30,6 @@ const HomeMap = () => {
   const [map, setMap] = useState(null);
   const [place, setPlace] = useState("");
   const [clickedNowLocationBtn, setClickedNowLocationBtn] = useRecoilState(isClickedNowLocation);
-  const loc = useRecoilValueLoadable(setLo);
 
   const getWtm = useRecoilValueLoadable(getWTM);
 
@@ -273,7 +272,7 @@ const HomeMap = () => {
         // pickPoint={pickPoint}
         // setPickPoint={setPickPoint}
       />
-      {loc.state === "loading" && getWtm.state === "loading" ? (
+      {getWtm.state === "loading" ? (
         <MapLoading />
       ) : (
         <Styled.Map id="map">

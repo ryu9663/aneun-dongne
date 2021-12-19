@@ -45,8 +45,8 @@ function HomeRightbar({ setLevel }) {
     console.log("handleTagSearch", hashtag);
   };
   const searchPlace = (area, sigg, place, hashtag) => {
-    console.log(place);
-    console.log("hash", hashtag);
+    // console.log(place);
+    // console.log("hash", hashtag);
     let areaCode = "";
     let siggCode = "";
     if (area === "null") {
@@ -89,7 +89,7 @@ function HomeRightbar({ setLevel }) {
               el.post_firstimage,
               el.post_addr1,
               el.post_contentid,
-              el.post_tags.split(",") || [],
+              el.post_tags ? el.post_tags.split(",") : [],
             ];
           });
         console.log(list);
@@ -138,11 +138,10 @@ function HomeRightbar({ setLevel }) {
               }
             }}
           ></Styled.SearchPlace>
-          {/* <div> */}
+
           <Styled.SearchBtn onClick={() => searchPlace(area, sigg, place, hashtag)}>
             <i className="fas fa-search"></i>
           </Styled.SearchBtn>
-          {/* </div> */}
         </Styled.SearchWrapper>
         <HomeRightBtn />
       </Styled.MapRightBar>

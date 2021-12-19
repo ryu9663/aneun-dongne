@@ -62,7 +62,9 @@ function Home() {
         ) : (
           <Styled.DivRow>
             <Styled.DivColumn>
-              <HomeMap />
+              <React.Suspense fallback={<Loading />}>
+                <HomeMap />
+              </React.Suspense>
             </Styled.DivColumn>
             <Styled.DivColumnSecond>
               <PlaceList />

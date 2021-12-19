@@ -32,42 +32,46 @@ function PlaceCards({ title, img, addr1, onClick, contentId, tag }) {
       console.log(e);
     }
   };
+
+  //!!
   const getLike = async () => {
-    try {
-      setLikeLoading(true);
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/like/${contentId}`, {
+    // try {
+    setLikeLoading(true);
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}/like/${contentId}`, {
+      headers: {
+        Authorization: `Bearer ${accessToken || kakaoToken}`,
+        "Content-Type": "application/json",
+      },
+      withCredentials: true,
+    });
+    const like = { likeOrNot: response.data.data.isLiked, likeCount: response.data.data.likeCount };
+    setLike(like.likeCount);
+    setLikeOrNot(like.likeOrNot);
+    setLikeLoading(false);
+    // } catch (e) {
+    //   console.log(e);
+    //   setLikeLoading(false);
+    // }
+  };
+
+  useEffect(async () => {
+    setLikeLoading(true);
+    axios
+      .get(`${process.env.REACT_APP_API_URL}/like/${contentId}`, {
         headers: {
           Authorization: `Bearer ${accessToken || kakaoToken}`,
           "Content-Type": "application/json",
         },
         withCredentials: true,
+      })
+      .then((response) => {
+        const like = { likeOrNot: response.data.data.isLiked, likeCount: response.data.data.likeCount };
+        setLike(like.likeCount);
+        setLikeOrNot(like.likeOrNot);
+        setLikeLoading(false);
       });
-      const like = { likeOrNot: response.data.data.isLiked, likeCount: response.data.data.likeCount };
-      setLike(like.likeCount);
-      setLikeOrNot(like.likeOrNot);
-      setLikeLoading(false);
-    } catch (e) {
-      console.log(e);
-      setLikeLoading(false);
-    }
-  };
-  useEffect(() => {
-    let abortController = new AbortController();
-    // let mounted = true;
-    // if (mounted) {
-
-    setLikeLoading(true);
-    getHashTag();
-    getLike();
-    setLikeLoading(false);
-    // }
-    // return () => {
-    //   mounted = false;
-    // };
-    return () => {
-      abortController.abort();
-    };
   }, [placeList, like, likeOrNot]);
+  //!!
   const LikeHandler = async (e) => {
     e.preventDefault();
     if (!isLogin) {

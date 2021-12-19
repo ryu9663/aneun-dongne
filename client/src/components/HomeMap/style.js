@@ -8,6 +8,8 @@ export const Styled = {
       position: absolute;
       left: 1px;
       font-size: 0.9rem;
+      padding-right: 5px;
+      border-bottom-right-radius: 10px;
       background: rgba(255, 255, 255, 0.6);
     }
     @media (min-width: 1024px) {
