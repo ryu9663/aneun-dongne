@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 function ModalVisited({ id, kmemo, visitedImg }) {
   const accessToken = useRecoilValue(token);
   const kakaoToken = useRecoilValue(kToken);
-  useSetRecoilState(visitedId)(id);
+  // useSetRecoilState(visitedId)(id);
   const [isVisitedPlaceOpen, setIsVisitedPlaceOpen] = useRecoilState(visitedModal);
   const [image, setImage] = useState(""); //전역으로 바꿀수도
   const [memo, setMemo] = useState(kmemo); //마찬가지 전역으로 바꿀수도
@@ -72,6 +72,7 @@ function ModalVisited({ id, kmemo, visitedImg }) {
         params: { visitedId: id },
       })
       .then((res) => {
+        console.log(res);
         setDeleteOrNot(true);
         setIsVisitedPlaceOpen(false);
       });

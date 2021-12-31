@@ -18,33 +18,33 @@ const MyVisited = () => {
   const [selectedPosition, setSelectedPosition] = useState(null);
   // const accessToken = useRecoilValue(token);
   // const kakaoToken = useRecoilValue(kToken);
-  // const [placeList, setPlaceList] = useRecoilState(newVisitedPlace);
+  const [placeList, setPlaceList] = useRecoilState(newVisitedPlace);
   const [loading, setLoading] = useState(false);
   const [deleteOrNot, setDeleteOrNot] = useRecoilState(deleteCommentmode);
   const cookies = new Cookies();
-  const visitedPlace = useRecoilValueLoadable(getVisitedPlace);
-  console.log(visitedPlace);
-  const placeList = useMemo(() => visitedPlace.contents, [visitedPlace.contents.length]);
-  // useEffect(async () => {
-  //   async function getVisitedPlace() {
-  //     const result = await axios
-  //       .get(`${process.env.REACT_APP_API_URL}/visited`, {
-  //         headers: {
-  //           Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //         withCredentials: true,
-  //       })
-  //       .then((res) => {
-  //         setPlaceList(res.data.data);
-  //       });
-  //     return result;
-  //   }
-  //   setLoading(true);
-  //   await getVisitedPlace();
-  //   setLoading(false);
-  //   setDeleteOrNot(false);
-  // }, [, deleteOrNot]);
+  // const visitedPlace = useRecoilValueLoadable(getVisitedPlace);
+  // console.log(visitedPlace);
+  // const placeList = useMemo(() => visitedPlace.contents, [visitedPlace.contents.length]);
+  useEffect(async () => {
+    async function getVisitedPlace() {
+      const result = await axios
+        .get(`${process.env.REACT_APP_API_URL}/visited`, {
+          headers: {
+            Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        })
+        .then((res) => {
+          setPlaceList(res.data.data);
+        });
+      return result;
+    }
+    setLoading(true);
+    await getVisitedPlace();
+    setLoading(false);
+    setDeleteOrNot(false);
+  }, [, deleteOrNot]);
 
   useEffect(() => {
     const container = document.querySelector("#map");
@@ -131,7 +131,7 @@ const MyVisited = () => {
     map.setBounds(bounds);
   }, [placeList]);
 
-  if (placeList.length === 0 || visitedPlace.state === "loading") {
+  if (placeList.length === 0) {
     return (
       <Styled.Body>
         <Empty />

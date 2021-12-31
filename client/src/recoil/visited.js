@@ -1,7 +1,7 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
 import Cookies from "universal-cookie";
-import { visitedModal } from "./recoil";
+import { deleteCommentmode, visitedModal } from "./recoil";
 
 const cookies = new Cookies();
 
@@ -12,27 +12,32 @@ export const visitedId = atom({
 });
 export const newVisitedPlace = atom({
   key: "newVisitedPlace",
-  default: "",
+  default: [],
 });
 export const newVisitedMemo = atom({
   key: "newVisitedMemo",
   default: "",
 });
-export const getVisitedPlace = selector({
-  key: "getVisitedPlace",
-  get: async ({ get }) => {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/visited`, {
-      headers: {
-        Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
-        "Content-Type": "application/json",
-      },
-      withCredentials: true,
-    });
-    // console.log(response);
-    const visitedList = response.data.data;
-    return visitedList;
-  },
-});
+// export const getVisitedPlace = selector({
+//   key: "getVisitedPlace",
+//   get: ({get})=>get(newVisitedPlace),
+//   set: async ({ set }) => {
+//     // const deletedMode = get(deleteCommentmode);
+//     // console.log(deletedMode);
+//     const response = await axios.get(`${process.env.REACT_APP_API_URL}/visited`, {
+//       headers: {
+//         Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
+//         "Content-Type": "application/json",
+//       },
+//       withCredentials: true,
+//     });
+//     // console.log(response);
+//     const visitedList = response.data.data;
+//     // return visitedList;
+//     set(newVisitedPlace,visitedList)
+//   },
+
+// });
 // export const newVisitedPlace = selector({
 //     key: "newVisitedPlace",
 //     get: ({get}) => {
@@ -42,20 +47,3 @@ export const getVisitedPlace = selector({
 
 //     })
 // })
-// export const deletedVisitedPlace = selector({
-//   key: "deletedVisitedPlace",
-
-//   get: async ({ get }) => {
-//     const response = await axios.delete(`${process.env.REACT_APP_API_URL}/visited`, {
-//       headers: {
-//         Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
-//         "Content-Type": "application/json",
-//       },
-//       withCredentials: true,
-//       params: { visitedId: get(visitedId) },
-//     });
-//     get(visitedModal)
-
-//     const visitedList = response.
-//   },
-// });
