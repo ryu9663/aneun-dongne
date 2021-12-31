@@ -6,11 +6,11 @@ import { Styled } from "./style";
 function CommentTemplate({ commentDummy, contentId }) {
   return (
     <div>
-      {commentDummy.map((comment, idx) => {
+      {commentDummy.map((comment) => {
         //여기도 toast로 바꿔보자
         if (comment.text === "\n") return null;
         return (
-          <div className="comment-template" key={idx}>
+          <div className="comment-template" key={comment[0].id}>
             <Comments
               uuid={comment[0].id}
               img={comment[0].user_image_path}

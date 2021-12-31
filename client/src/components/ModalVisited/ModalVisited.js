@@ -1,15 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
-import {
-  visitedModal,
-  loginState,
-  loginModal,
-  token,
-  kToken,
-  newVisitedPlace,
-  deleteCommentmode,
-} from "../../recoil/recoil";
+import { visitedModal, loginState, loginModal, token, kToken, deleteCommentmode } from "../../recoil/recoil";
+import { newVisitedPlace, visitedId } from "../../recoil/visited";
 import { Styled } from "./style";
 import VisitedUpload from "../VisitedUpload/VisitedUpload";
 import { toast } from "react-toastify";
@@ -17,6 +10,7 @@ import { toast } from "react-toastify";
 function ModalVisited({ id, kmemo, visitedImg }) {
   const accessToken = useRecoilValue(token);
   const kakaoToken = useRecoilValue(kToken);
+  useSetRecoilState(visitedId)(id);
   const [isVisitedPlaceOpen, setIsVisitedPlaceOpen] = useRecoilState(visitedModal);
   const [image, setImage] = useState(""); //전역으로 바꿀수도
   const [memo, setMemo] = useState(kmemo); //마찬가지 전역으로 바꿀수도

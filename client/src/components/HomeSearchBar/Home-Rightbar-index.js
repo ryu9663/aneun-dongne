@@ -108,6 +108,7 @@ function HomeRightbar({ setLevel }) {
           <Styled.SearchBar>
             <Styled.SearchLocation first value={area} onChange={(e) => changeArea(e.target.value)} name="h_area1">
               {areaNameArr.map((el, idx) => {
+                //이건 절대 재배열 안되니까 key에 idx써도됨
                 return <option key={idx}>{el}</option>;
               })}
             </Styled.SearchLocation>

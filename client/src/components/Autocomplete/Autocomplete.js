@@ -117,6 +117,7 @@ export const Autocomplete = ({ hashtag, setHashtag }) => {
 export const DropDown = ({ options, handleDropDownClick, selected }) => {
   return (
     <Styled.DropDownWrapper className="hashtag-drop-down">
+      {/* db에서 받게 되면 key를 idx가 아닌 id로 바꿔야함 */}
       {options.map((option, idx) => (
         <Styled.DropDownValue
           key={idx}

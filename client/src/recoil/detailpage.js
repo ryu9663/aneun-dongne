@@ -1,7 +1,9 @@
 import { atom, selector } from "recoil";
 import axios from "axios";
 import Cookies from "universal-cookie";
+
 const cookies = new Cookies();
+
 // export const contentid = atom({
 //   key: "contentid",
 //   default: 0,
@@ -30,6 +32,7 @@ const cookies = new Cookies();
 //     }
 //   },
 // });
+
 export const defaultcomments = atom({
   key: "defaultcomments",
   default: [],

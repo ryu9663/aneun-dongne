@@ -1,7 +1,7 @@
 import React from "react";
 import { Styled } from "./style";
 
-const EditableHashTag = ({ setTags, tags, getCommentId }) => {
+const EditableHashTag = ({ setTags, tags }) => {
   const removeTags = (indexToRemove) => {
     setTags(tags.filter((_, index) => index !== indexToRemove));
   };
@@ -23,7 +23,7 @@ const EditableHashTag = ({ setTags, tags, getCommentId }) => {
       }
     }
   };
-
+  console.log(tags);
   return (
     <>
       <Styled.TagsInput>

@@ -3,11 +3,11 @@ import axios from "axios";
 import { Styled } from "./style";
 
 import VisitedList from "../VisitedList/VisitedList";
-import { token, kToken, visitedModal, newVisitedPlace, deleteCommentmode } from "../../recoil/recoil";
-import { useRecoilValue, useRecoilState } from "recoil";
+import { newVisitedPlace, getVisitedPlace } from "../../recoil/visited";
+import { deleteCommentmode } from "../../recoil/recoil";
+import { useRecoilValue, useRecoilState, useRecoilValueLoadable } from "recoil";
 
 import Empty from "../Empty/Empty";
-import ModalVisited from "../ModalVisited/ModalVisited";
 import MapLoading from "../Loading/MapLoading";
 import Cookies from "universal-cookie";
 
@@ -16,33 +16,35 @@ const { kakao } = window;
 const MyVisited = () => {
   const [markerClick, setMarkerClick] = useState(false);
   const [selectedPosition, setSelectedPosition] = useState(null);
-  const accessToken = useRecoilValue(token);
-  const kakaoToken = useRecoilValue(kToken);
-  const [placeList, setPlaceList] = useRecoilState(newVisitedPlace);
+  // const accessToken = useRecoilValue(token);
+  // const kakaoToken = useRecoilValue(kToken);
+  // const [placeList, setPlaceList] = useRecoilState(newVisitedPlace);
   const [loading, setLoading] = useState(false);
   const [deleteOrNot, setDeleteOrNot] = useRecoilState(deleteCommentmode);
   const cookies = new Cookies();
-
-  async function getVisitedPlace() {
-    const result = await axios
-      .get(`${process.env.REACT_APP_API_URL}/visited`, {
-        headers: {
-          Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      })
-      .then((res) => {
-        setPlaceList(res.data.data);
-      });
-    return result;
-  }
-  useEffect(async () => {
-    setLoading(true);
-    await getVisitedPlace();
-    setLoading(false);
-    setDeleteOrNot(false);
-  }, [, deleteOrNot]);
+  const visitedPlace = useRecoilValueLoadable(getVisitedPlace);
+  console.log(visitedPlace);
+  const placeList = useMemo(() => visitedPlace.contents, [visitedPlace.contents.length]);
+  // useEffect(async () => {
+  //   async function getVisitedPlace() {
+  //     const result = await axios
+  //       .get(`${process.env.REACT_APP_API_URL}/visited`, {
+  //         headers: {
+  //           Authorization: `Bearer ${cookies.get("jwt") || cookies.get("kakao-jwt")}`,
+  //           "Content-Type": "application/json",
+  //         },
+  //         withCredentials: true,
+  //       })
+  //       .then((res) => {
+  //         setPlaceList(res.data.data);
+  //       });
+  //     return result;
+  //   }
+  //   setLoading(true);
+  //   await getVisitedPlace();
+  //   setLoading(false);
+  //   setDeleteOrNot(false);
+  // }, [, deleteOrNot]);
 
   useEffect(() => {
     const container = document.querySelector("#map");
@@ -129,7 +131,7 @@ const MyVisited = () => {
     map.setBounds(bounds);
   }, [placeList]);
 
-  if (placeList.length === 0) {
+  if (placeList.length === 0 || visitedPlace.state === "loading") {
     return (
       <Styled.Body>
         <Empty />

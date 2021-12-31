@@ -58,9 +58,9 @@ function PlaceList() {
 
   return (
     <Styled.PlaceLists>
-      {placeList.map((place, idx) => {
+      {placeList.map((place) => {
         return (
-          <Styled.Div key={idx}>
+          <Styled.Div key={place[5]}>
             {/* addr1이 undefined 되는 장소가 있어서 addr1는 임시방편으로 3항연산자 처리함 나중에 살펴보자. */}
             <Styled.StyledLink to={`/detailpage/${place[5]}`}>
               <MemoCards

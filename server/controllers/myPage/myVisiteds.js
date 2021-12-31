@@ -147,6 +147,7 @@ module.exports = {
           await updateMyVisited(visitedId, id, area, sigg, mapx, mapy, memo, "", "");
           await res.status(200).json({ data: await getMyVisiteds(id) });
         } else {
+          // console.log("리코그파일", req.file);
           //s3 서버에 저장된 이미지의 url 경로 획득
           const imagesInfo = req.file.transforms;
           let imagePath = "";

@@ -85,7 +85,10 @@ function DetailPage({ match }) {
         withCredentials: true,
       })
       .then((res) => {
-        if (res.data.post.post_tags) setTags(res.data.post.post_tags.split(",").map((el) => "#" + el));
+        if (res.data.post.post_tags) {
+          //id도 달라고하기 왠만하면
+          setTags(res.data.post.post_tags.split(",").map((el) => "#" + el));
+        }
       });
   }, [defaultComment]);
 

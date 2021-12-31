@@ -42,6 +42,7 @@ app.get("/mypage/likelists", controllers.myLikes);
 app.get("/mypage/commentlists", controllers.myComments);
 
 app.get("/visited", controllers.readVisiteds);
+//formData의 속성명("image")과 일치하는 파일 하나를 받는다. 나머지는 그대로 req.body로 들어간다.
 app.post("/visited", upload.single("image"), controllers.createVisited);
 app.patch("/visited", upload.single("image"), controllers.updateVisited);
 app.delete("/visited", controllers.deleteVisited);

@@ -1,22 +1,8 @@
 import React, { useState } from "react";
-import { useRecoilState } from "recoil";
+
 import { Styled } from "./style";
-import { visitedModal } from "../../recoil/recoil";
 
 function VisitedCards({ area, sigg, image, memo, id }) {
-  const [isVisitedOpen, setIsVisitedOpen] = useRecoilState(visitedModal);
-  const [vtModal, setVtModal] = useState(null);
-  const openModalHandler = (modal) => {
-    setVtModal(modal);
-    setIsVisitedOpen(true);
-  };
-  const closeVisitedModal = () => {
-    if (isVisitedOpen) {
-      setVtModal(null);
-      setIsVisitedOpen(false);
-    }
-  };
-
   return (
     <>
       <Styled.PlaceCard>

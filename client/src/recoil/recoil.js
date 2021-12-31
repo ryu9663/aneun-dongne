@@ -208,31 +208,3 @@ export const loginAgainModal = atom({
   key: "loginAgainModal",
   default: false,
 });
-
-//! 마이페이지
-export const newVisitedPlace = atom({
-  key: "newVisitedPlace",
-  default: "",
-});
-export const newVisitedMemo = atom({
-  key: "newVisitedMemo",
-  default: "",
-});
-export const getVisitedList = selector({
-  key: "getVisitedList",
-  get: async ({ get }) => {
-    const result = await axios
-      .get(`${process.env.REACT_APP_API_URL}/visited`, {
-        headers: {
-          Authorization: `Bearer ${get(token)}`,
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      })
-      .then((res) => {
-        return res.data.data;
-      });
-
-    return result;
-  },
-});

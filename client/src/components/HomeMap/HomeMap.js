@@ -115,7 +115,7 @@ const HomeMap = () => {
     }
 
     const imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png";
-    console.log(placeList);
+
     for (let i = 0; i < positions.length; i++) {
       const imageSize = new kakao.maps.Size(24, 35);
       const markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize);
@@ -205,7 +205,7 @@ const HomeMap = () => {
     setMapLoading(false);
     setPending(false);
   }, [placeList]);
-  console.log(mapRef.current);
+
   return (
     <Styled.Div>
       <HomeRightbar
